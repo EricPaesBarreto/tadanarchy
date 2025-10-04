@@ -3,7 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 
-# user
+# USER
 class User(db.Model, UserMixin):
     # properties
 
@@ -35,7 +35,16 @@ class User(db.Model, UserMixin):
     def is_child(self):
         return not self.is_adult() # just reverse it LMAO
     
-### family
+    def has_family(self):
+        return self.family_id is not None # family != null
+    
+    def set_family(self, family):
+        if isinstance(family, int): # (family_id passed in)
+            self.family_id = family
+        else:                       # (family object passed in)
+            self.family_id = family.id
+    
+# FAMILY
 
 class Family(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,7 +52,21 @@ class Family(db.Model):
     parent_email = db.Column(db.String(150))  # The parent which sets up the email
     members = db.relationship('User', backref='family', lazy=True)
 
-## login management
+# CHILD-PARENT ACCOUNT LINK VERIFICATION 
+class ParentChild(db.Model):
+    __tablename__ = 'parent_child'
+
+    id = db.Column(db.Integer, primary_key=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('user.email'), nullable=False)
+    child_id = db.Column(db.Integer, db.ForeignKey('user.email'), nullable=False)
+    verified = db.Column(db.Boolean, default=False)  # for future verification feature with emails and stuff
+
+    # relationships (YOU ARE THE FATHER!) *shocked audience*
+    parent = db.relationship('User', foreign_keys=[parent_id], backref='children_links')
+    child = db.relationship('User', foreign_keys=[child_id], backref='parent_links')
+
+
+# LOGIN MANAGEMENT
 
 @login_manager.user_loader
 def load_user(user_id):
