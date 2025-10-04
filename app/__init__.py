@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
+from datetime import datetime
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -18,4 +19,12 @@ def create_app():
     app.register_blueprint(routes.auth)
     app.register_blueprint(routes.main)
 
+    @app.context_processor
+    def inject_globals(): # so that htmls and jinja don't get confused over user var (store datetime too IG)
+        return {
+            'user': current_user,
+            'current_year': datetime.now().year
+        }
+
     return app
+    

@@ -6,6 +6,7 @@ from flask import Blueprint
 from datetime import datetime
 import random
 
+
  # blueprints (everything exists here anyways, but just in case *shrug*)
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
@@ -25,7 +26,7 @@ def home():
 def register():
     if request.method == 'POST':
         first_name = request.form['first_name']
-        surname = request.form['surname']
+        last_name = request.form['last_name']
         email = request.form['email']
         password = request.form['password']
         dob_str = request.form['date_of_birth']
@@ -37,7 +38,7 @@ def register():
             return redirect(url_for('auth.register'))
 
         # create new user object
-        new_user = User(first_name=first_name, surname=surname, email=email, date_of_birth=dob, avatar_id=random.randint(1, 5)) #
+        new_user = User(first_name=first_name, last_name=last_name, email=email, date_of_birth=dob, avatar_id=random.randint(1, 5)) #
         new_user.set_password(password)
 
         # check age --> can they drink alcohol?
@@ -51,7 +52,7 @@ def register():
         flash('Registration successful. Please log in.')
         return redirect(url_for('auth.login'))
 
-    return render_template('landing_page.html')
+    return render_template('authorization/register.html')
 
 # LOGIN
 @auth.route('/login', methods=['GET', 'POST'])
@@ -65,7 +66,7 @@ def login():
             login_user(user)
             return redirect(url_for('main.dashboard'))
         flash('Invalid credentials')
-    return render_template('landing_page.html')
+    return render_template('authorization/login.html')
 
 # LOGOUT
 @auth.route('/logout')

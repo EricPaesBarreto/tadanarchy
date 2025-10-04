@@ -1,0 +1,39 @@
+:root {
+  --primary-color: #28a745;      /* navbar background */
+  --secondary-color: #6c757d;    /* footer background */
+  --success-color: #198754;      /* buttons like Sign Up */
+  --danger-color: #dc3545;       /* logout button */
+  --font-color: #ffffff;          /* default text */
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--primary-color) !important;
+}
+
+/* Footer */
+footer {
+  background-color: var(--secondary-color);
+  color: var(--font-color);
+}
+
+/* Buttons */
+.btn-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+/* Card Shadows */
+.card {
+  border-radius: 0.75rem;
+}
+
+/* Other custom tweaks */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
