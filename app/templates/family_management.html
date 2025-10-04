@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Family Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-primary">👨‍👩‍👧 Family Management Dashboard</h2>
+    <p class="text-muted">
+      Track your family’s progress, manage tasks, and reward achievements that build healthy habits.
+    </p>
+  </div>
+
+  <!-- Family Overview -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h5 class="card-title text-primary">Total Family Points</h5>
+          <h2 class="fw-bold text-success" id="totalPoints">1250</h2>
+          <p class="text-muted">Earned through all completed tasks</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-primary mb-3">Family Members</h5>
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Points</th>
+                <th>Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Alice</td>
+                <td>Child</td>
+                <td><span class="badge bg-info text-dark">340</span></td>
+                <td>🌱 Beginner</td>
+              </tr>
+              <tr>
+                <td>Bob</td>
+                <td>Parent</td>
+                <td><span class="badge bg-secondary">—</span></td>
+                <td>🏆 Supervisor</td>
+              </tr>
+              <tr>
+                <td>Liam</td>
+                <td>Child</td>
+                <td><span class="badge bg-info text-dark">230</span></td>
+                <td>🌿 Intermediate</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggested Plans Section -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0 text-primary">🏡 Suggested Plans</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h6 class="card-title fw-bold">Better Sleep Routine</h6>
+              <p class="text-muted small mb-3">
+                Encourage consistent bedtimes and better sleep hygiene.
+              </p>
+              <button class="btn btn-outline-primary w-100">Add to Tasks</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h6 class="card-title fw-bold">Healthy Eating Plan</h6>
+              <p class="text-muted small mb-3">
+                Reward your child for eating fruits, veggies, and balanced meals.
+              </p>
+              <button class="btn btn-outline-primary w-100">Add to Tasks</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h6 class="card-title fw-bold">School Prep Routine</h6>
+              <p class="text-muted small mb-3">
+                Build focus by setting short study sessions and prep tasks.
+              </p>
+              <button class="btn btn-outline-primary w-100">Add to Tasks</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Task Creation -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-light">
+      <h5 class="mb-0 text-primary">📝 Create Your Own Task</h5>
+    </div>
+    <div class="card-body">
+      <form id="taskForm">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label">Task Name</label>
+            <input type="text" class="form-control" placeholder="e.g. Clean your room" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Points</label>
+            <input type="number" class="form-control" placeholder="e.g. 50" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Assign To</label>
+            <select class="form-select" required>
+              <option selected disabled>Choose member</option>
+              <option>Alice</option>
+              <option>Liam</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Add Task</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Button to return or transfer from Tasks page -->
+  <div class="text-center mt-4">
+    <a href="{{ url_for('tasks') }}" class="btn btn-outline-secondary">
+      ← Back to Tasks
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Placeholder example — link this later to your Flask backend
+  document.getElementById('taskForm').addEventListener('submit', e => {
+    e.preventDefault();
+    alert('New task added! (In future, this will be sent to the backend)');
+  });
+</script>
+{% endblock %}
