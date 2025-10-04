@@ -1,13 +1,22 @@
-from app import app, db
-from flask import render_template, request, redirect, url_for, flash
+from app import db
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from .models import User
 from flask import Blueprint
 from datetime import datetime
 import random
 
+ # blueprints (everything exists here anyways, but just in case *shrug*)
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
+
+### PAGES
+
+# MAIN
+@main.route('/')
+def home():
+    return render_template('landing_page.html')
+
 
 ### ACCOUNTS
 
@@ -28,7 +37,7 @@ def register():
             return redirect(url_for('auth.register'))
 
         # create new user object
-        new_user = User(first_name=first_name, date_of_birth=dob, avatar_id=random.randint(1, 5)) #
+        new_user = User(first_name=first_name, surname=surname, email=email, date_of_birth=dob, avatar_id=random.randint(1, 5)) #
         new_user.set_password(password)
 
         # check age --> can they drink alcohol?
@@ -65,11 +74,9 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
-### FORMS
+### OTHER FORMS
 
-# CREATE FAMILY
-
-### TABS
+# CREATE FAMILY (todo)
 
 # DASHBOARD
 @main.route('/dashboard')
