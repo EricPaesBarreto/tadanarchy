@@ -20,8 +20,8 @@
           <input type="text" class="form-control" id="surname" name="surname" required>
         </div>
         <div class="mb-3">
-          <label for="dob" class="form-label">Date of Birth (dd.mm.yyyy)</label>
-          <input type="text" class="form-control" id="dob" name="dob" pattern="\d{2}\.\d{2}\.\d{4}" placeholder="dd.mm.yyyy" required inputmode="numeric" oninput="this.value=this.value.replace(/[^\d\.]/g,'')">
+          <label for="dob" class="form-label">Date of Birth</label>
+          <input type="date" class="form-control" id="dob" name="dob" required pattern="\d{2}-\d{2}-\d{4}" placeholder="dd-mm-yyyy" style="text-transform: lowercase;">
         </div>
         <button type="submit" class="btn btn-success w-100">Sign Up</button>
       </form>
