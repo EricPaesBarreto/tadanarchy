@@ -2,7 +2,17 @@
 {% block title %}Tasks{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-semibold">📋 Current Tasks for the Day</h3>
+    <div>
+      <button id="focusModeBtn" class="btn btn-warning btn-sm me-2">🎯 Enter Focus Mode</button>
+      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+        ➕ Add New Task
+      </button>
+    </div>
+  </div>
+
 
   <!-- Today's Task / Stats -->
   <div class="mb-4 p-4 bg-light rounded shadow-sm">
