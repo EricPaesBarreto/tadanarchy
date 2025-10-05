@@ -152,3 +152,8 @@ def dashboard():
 @login_required
 def family_management():
     return render_template('family_management.html', user=current_user)
+
+@main.route('/tasks')
+@login_required
+def tasks():
+    return render_template('tasks.html', user=current_user)
