@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Livelihood — Family Chore Manager{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="text-center py-5 bg-light">
+  <div class="container">
+    <h1 class="display-4 fw-bold text-success">Welcome to Livelihood</h1>
+    <p class="lead mt-3 text-muted">
+      Simplify family life by organizing chores, tracking progress, and rewarding healthy habits together.
+    </p>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card shadow h-100 text-center p-4">
+          <div class="card-body">
+            <h5 class="card-title text-success fw-bold">Organize Chores</h5>
+            <p class="card-text text-muted">
+              Create, assign, and monitor household tasks for each family member — all in one cozy dashboard.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow h-100 text-center p-4">
+          <div class="card-body">
+            <h5 class="card-title text-success fw-bold">Track Progress</h5>
+            <p class="card-text text-muted">
+              Watch your family grow together as tasks are completed and points are earned toward fun rewards!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow h-100 text-center p-4">
+          <div class="card-body">
+            <h5 class="card-title text-success fw-bold">Build Healthy Habits</h5>
+            <p class="card-text text-muted">
+              Encourage responsibility, teamwork, and balance — Livelihood turns daily routines into joyful moments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action (Sign Up) -->
+<section class="text-center py-5 bg-success text-white">
+  <div class="container">
+    <h2 class="fw-bold mb-3">Start your family journey today</h2>
+    <p class="mb-4">Join Livelihood and bring harmony to your home through smart, shared responsibility.</p>
+    <a href="{{ url_for('main.landing_page') }}" class="btn btn-light btn-lg px-5">
+      Sign Up
+    </a>
+  </div>
+</section>
+
+<!-- Footer Padding -->
+<div class="mb-5"></div>
+
+{% endblock %}

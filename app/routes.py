@@ -1,10 +1,12 @@
 from app import db
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
-from .models import User
+from .models import User, ParentChild
 from flask import Blueprint
 from datetime import datetime
 import random
+from sqlalchemy.exc import SQLAlchemyError
+
 
  # blueprints (everything exists here anyways, but just in case *shrug*)
 auth = Blueprint('auth', __name__)
@@ -12,60 +14,96 @@ main = Blueprint('main', __name__)
 
 ### PAGES
 
-# MAIN
+# MAIN PAGE
 @main.route('/')
-def home():
-    return render_template('landing_page.html')
+def main_page():  # <-- renamed from `home` to `main_page`
+    return render_template('main_page.html')
+
 
 
 ### ACCOUNTS
 
 # SIGN-IN
+# SIGN-IN
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        print("DEBUG: Entered POST registration")
         first_name = request.form['first_name']
-        surname = request.form['surname']
-        email = request.form['email']
+        last_name = request.form['last_name']
+        email = request.form['email'].strip().lower()  # NOT case sensitive (check login query)
         password = request.form['password']
         dob_str = request.form['date_of_birth']
 
+        print("DEBUG: dob_str:", dob_str)
+
+        # should fix issues with date-time inconsistency
         try:
-            dob = datetime.strptime(dob_str, '%d-%m-%Y').date()
+            try:
+                dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+            except ValueError:
+                try:
+                    dob = datetime.strptime(dob_str, '%d/%m/%Y').date()
+                except ValueError:
+                    flash('Invalid date format')
+                    return render_template('authorization/register.html')
         except ValueError:
             flash('Invalid date format')
-            return redirect(url_for('auth.register'))
+            return render_template('authorization/register.html') # causes less issues than redirect
 
         # create new user object
-        new_user = User(first_name=first_name, surname=surname, email=email, date_of_birth=dob, avatar_id=random.randint(1, 5)) #
+        new_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            date_of_birth=dob,
+            avatar_id=random.randint(1,9)  # for now, only 4 avatars :(
+        )
         new_user.set_password(password)
 
-        # check age --> can they drink alcohol?
-        """if not new_user.is_adult():
-            flash('You must be assigned to a parent's email')
-            return redirect(url_for('auth.register'))"""
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            print("DEBUG: Added user:", new_user.email, new_user.password_hash)  # DEBUG DEBUG DEBUG!!!!!!!!
 
-        db.session.add(new_user)
-        db.session.commit()
+            if not new_user.is_adult():  # check age --> hopefully this version works
+                flash("Registration successful. Please log in and link with a parent account.")
+                return redirect(url_for('auth.login'))
+
+        except Exception as e:
+            db.session.rollback()  # undo partial changes
+            print("DEBUG: DB commit failed:", e)
+            flash(f"Registration failed: {str(e)}")
+            return render_template('authorization/register.html')
 
         flash('Registration successful. Please log in.')
         return redirect(url_for('auth.login'))
 
-    return render_template('landing_page.html')
+    return render_template('authorization/register.html')
 
 # LOGIN
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        print("DEBUG: Entered POST registration")
+        email = request.form['email'].lower() # NOT case sensitive (check register (sign in logic))
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(email=email).first()
 
+        print("DEBUG: login user:", user)
         if user and user.check_password(password):
+            print("DEBUG: stored hash:", user.password_hash)
             login_user(user)
+            # redirect under-18 to link page
+            if not user.is_adult():
+                return redirect(url_for('main.link_parent'))
             return redirect(url_for('main.dashboard'))
+
         flash('Invalid credentials')
-    return render_template('landing_page.html')
+        return render_template('authorization/login.html')
+    
+    return render_template('authorization/login.html') # login for GET (user wasn't in reg prior)
+    
 
 # LOGOUT
 @auth.route('/logout')
@@ -73,6 +111,33 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+# UNDER 18 LOGIN 
+@main.route('/link_parent', methods=['GET', 'POST'])
+@login_required
+def link_parent():
+    if current_user.is_adult():
+        return redirect(url_for('main.dashboard'))
+
+    if request.method == 'POST':
+        parent_email = request.form['parent_email']
+
+        # check if this link already exists
+        existing = ParentChild.query.filter_by(child_id=current_user.email, parent_id=parent_email).first()
+        if existing:
+            flash("Link request already sent!")
+        else:
+            link = ParentChild(child_id=current_user.email, parent_id=parent_email, verified=False)
+            db.session.add(link)
+            db.session.commit()
+            flash(f"DEBUG: verify account for {parent_email}?")  # placeholder for email verification -------------------------> change for production
+
+        return redirect(url_for('main.link_parent'))
+
+    # show all pending links for this child
+    links = ParentChild.query.filter_by(child_id=current_user.email).all()
+    return render_template('link_parent.html', links=links)
+
 
 ### OTHER FORMS
 
@@ -82,4 +147,22 @@ def logout():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('main_page.html', user=current_user)
+    return render_template('dashboard.html', user=current_user)
+
+@main.route('/family_management')
+@login_required
+def family_management():
+    return render_template('family_management.html', user=current_user)
+
+@main.route('/tasks')
+@login_required
+def tasks():
+    return render_template('tasks.html', user=current_user)
+
+@main.route('/landing_page')
+def landing_page():
+    return render_template('landing_page.html')
+
+@main.route('/family_tasks')
+def family_tasks():
+    return render_template('family_tasks.html')

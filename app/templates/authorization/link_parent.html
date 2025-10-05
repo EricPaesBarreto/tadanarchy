@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Link Your Account With a Parent</h2>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <label for="parent_email">Parent Email</label>
+        <input type="email" name="parent_email" required placeholder="Enter parent's email">
+        <button type="submit">Send Link Request</button>
+    </form>
+
+    <h3>Pending Requests:</h3>
+    <ul>
+    {% for link in links %}
+        <li>{{ link.parent.email }} — Verified: {{ link.verified }}</li>
+    {% else %}
+        <li>No pending links.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
