@@ -33,6 +33,7 @@ def register():
         dob_str = request.form['date_of_birth']
 
         # should fix issues with date-time inconsistency
+        print("DEBUG: dob_str:", dob_str)
         try:
             try:
                 dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
@@ -83,6 +84,7 @@ def register():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        print("DEBUG: Entered POST registration")
         email = request.form['email'].lower() # NOT case sensitive (check register (sign in logic))
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
