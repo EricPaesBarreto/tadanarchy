@@ -56,7 +56,7 @@ def register():
             last_name=last_name,
             email=email,
             date_of_birth=dob,
-            avatar_id=random.randint(0, 4)  # for now, only 4 avatars :(
+            avatar_id=random.randint(1,9)  # for now, only 4 avatars :(
         )
         new_user.set_password(password)
 

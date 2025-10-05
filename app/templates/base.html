@@ -43,12 +43,11 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="accountDropdown"
                  role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="{{ url_for('static', filename='images/avatars/avatar_' ~ user.avatar_id ~ '.png') }}"
+                <img src="{{ url_for('static', filename='avatars/pfp' ~ user.avatar_id ~ '.png') }}"
                      alt="Avatar" class="rounded-circle me-2" width="32" height="32">
                 {{ user.first_name }}
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                <!-- Future profile links can go here -->
                 <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">Logout</a></li>
               </ul>
             </li>
@@ -60,8 +59,7 @@
 
   <!-- ===== MAIN CONTENT ===== -->
   <main class="flex-fill d-flex justify-content-center align-items-center">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
   </main>
 
   <!-- ===== FOOTER ===== -->
