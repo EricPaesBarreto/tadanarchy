@@ -19,6 +19,12 @@ def create_app():
     app.register_blueprint(routes.auth)
     app.register_blueprint(routes.main)
 
+    from app import models # context (db)
+
+    # create tables --> when changing database for code just clear this for simplicity sake --> (instance/site.db)
+    with app.app_context():
+        db.create_all()
+
     @app.context_processor
     def inject_globals(): # so that htmls and jinja don't get confused over user var (store datetime too IG)
         return {

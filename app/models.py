@@ -7,11 +7,12 @@ from datetime import date
 class User(db.Model, UserMixin):
     # properties
 
-    email = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(150), unique=True, nullable=False)
-    surname = db.Column(db.String(150), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    first_name = db.Column(db.String(150), nullable=False)
+    surname = db.Column(db.String(150), nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    avatar_id = db.Column(db.Integer, default = 1)
+    avatar_id = db.Column(db.Integer, default = 0)
     points = db.Column(db.Integer, default = 0)
     date_of_birth = db.Column(db.Date, nullable = False)
     family_id = db.Column(db.Integer, db.ForeignKey('family.id'), nullable=True)
@@ -57,8 +58,8 @@ class ParentChild(db.Model):
     __tablename__ = 'parent_child'
 
     id = db.Column(db.Integer, primary_key=True)
-    parent_id = db.Column(db.Integer, db.ForeignKey('user.email'), nullable=False)
-    child_id = db.Column(db.Integer, db.ForeignKey('user.email'), nullable=False)
+    parent_id = db.Column(db.String, db.ForeignKey('user.email'), nullable=False)
+    child_id = db.Column(db.String, db.ForeignKey('user.email'), nullable=False)
     verified = db.Column(db.Boolean, default=False)  # for future verification feature with emails and stuff
 
     # relationships (YOU ARE THE FATHER!) *shocked audience*
