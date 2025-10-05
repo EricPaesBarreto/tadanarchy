@@ -6,14 +6,21 @@ Parents often have troubles with kids never wanting to help them with different 
 
 ## Installation
 -Clone the repository:
-'''bash
+```bash
 git clone https://github.com/EricPaesBarreto/tadanarchy.git
+```
 
 -Install the requirements
+```bash
 py -m pip install -r requirements.txt
+```
 
 -Run the app:
-In the terminal - "flask --app run run", and open the link
+In the terminal - 
+```bash
+"flask --app run run"
+```
+and open the link
 
 ## Key Features
 - Shared family calendar with reminders and scheduling
