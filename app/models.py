@@ -10,7 +10,7 @@ class User(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
     first_name = db.Column(db.String(150), nullable=False)
-    surname = db.Column(db.String(150), nullable=False)
+    last_name = db.Column(db.String(150), nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     avatar_id = db.Column(db.Integer, default = 0)
     points = db.Column(db.Integer, default = 0)
@@ -44,6 +44,9 @@ class User(db.Model, UserMixin):
             self.family_id = family
         else:                       # (family object passed in)
             self.family_id = family.id
+    
+    def get_id(self):
+        return str(self.user_id)
     
 # FAMILY
 

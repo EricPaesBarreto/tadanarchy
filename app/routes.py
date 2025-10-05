@@ -23,17 +23,20 @@ def home():
 ### ACCOUNTS
 
 # SIGN-IN
+# SIGN-IN
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        print("DEBUG: Entered POST registration")
         first_name = request.form['first_name']
         last_name = request.form['last_name']
-        email = request.form['email'].lower() # NOT case sensitive (check login query)
+        email = request.form['email'].strip().lower()  # NOT case sensitive (check login query)
         password = request.form['password']
         dob_str = request.form['date_of_birth']
 
-        # should fix issues with date-time inconsistency
         print("DEBUG: dob_str:", dob_str)
+
+        # should fix issues with date-time inconsistency
         try:
             try:
                 dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
@@ -48,30 +51,27 @@ def register():
             return render_template('authorization/register.html') # causes less issues than redirect
 
         # create new user object
-        new_user = User(first_name=first_name, 
-                        last_name=last_name, 
-                        email=email.lower(), 
-                        date_of_birth=dob, 
-                        avatar_id=random.randint(0, 4)) # for now, only 4 avatars :(
+        new_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            date_of_birth=dob,
+            avatar_id=random.randint(0, 4)  # for now, only 4 avatars :(
+        )
         new_user.set_password(password)
-
-        # check age --> can they drink alcohol?
-        """if not new_user.is_adult():
-            db.session.add(new_user)
-            db.session.commit()
-            flash("Registration successful. Please log in and link with a parent account.")
-            return redirect(url_for('auth.login'))"""
 
         try:
             db.session.add(new_user)
             db.session.commit()
-            print("DEBUG: Added user:", new_user.email, new_user.password_hash) # DEBUG DEBUG DEBUG!!!!!!!!
-            if not new_user.is_adult(): # check age --> hopefully this version works
+            print("DEBUG: Added user:", new_user.email, new_user.password_hash)  # DEBUG DEBUG DEBUG!!!!!!!!
+
+            if not new_user.is_adult():  # check age --> hopefully this version works
                 flash("Registration successful. Please log in and link with a parent account.")
                 return redirect(url_for('auth.login'))
-        except SQLAlchemyError as e:
-            print("DEBUG: ERROR WITH committing to db")
+
+        except Exception as e:
             db.session.rollback()  # undo partial changes
+            print("DEBUG: DB commit failed:", e)
             flash(f"Registration failed: {str(e)}")
             return render_template('authorization/register.html')
 
@@ -106,14 +106,14 @@ def login():
 
 # LOGOUT
 @auth.route('/logout')
-# @login_required                                   # CHANGE FOR PRODDDDDD
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
 # UNDER 18 LOGIN 
 @main.route('/link_parent', methods=['GET', 'POST'])
-# @login_required                                   # CHANGE FOR PRODDDDDD
+@login_required
 def link_parent():
     if current_user.is_adult():
         return redirect(url_for('main.dashboard'))
@@ -144,11 +144,11 @@ def link_parent():
 
 # DASHBOARD
 @main.route('/dashboard')
-#@login_required                                   # CHANGE FOR PRODDDDDD
+@login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user)
 
 @main.route('/family_management')
-#@login_required                                   # CHANGE FOR PRODDDDDD
+@login_required
 def family_management():
     return render_template('family_management.html', user=current_user)
