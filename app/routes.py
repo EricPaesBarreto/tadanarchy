@@ -69,6 +69,7 @@ def register():
                 flash("Registration successful. Please log in and link with a parent account.")
                 return redirect(url_for('auth.login'))
         except SQLAlchemyError as e:
+            print("DEBUG: ERROR WITH committing to db")
             db.session.rollback()  # undo partial changes
             flash(f"Registration failed: {str(e)}")
             return render_template('authorization/register.html')
@@ -144,3 +145,8 @@ def link_parent():
 #@login_required                                   # CHANGE FOR PRODDDDDD
 def dashboard():
     return render_template('dashboard.html', user=current_user)
+
+@main.route('/family_management')
+#@login_required                                   # CHANGE FOR PRODDDDDD
+def family_management():
+    return render_template('family_management.html', user=current_user)
