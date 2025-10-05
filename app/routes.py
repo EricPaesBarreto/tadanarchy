@@ -162,3 +162,7 @@ def tasks():
 @main.route('/landing_page')
 def landing_page():
     return render_template('landing_page.html')
+
+@main.route('/family_tasks')
+def family_tasks():
+    return render_template('family_tasks.html')

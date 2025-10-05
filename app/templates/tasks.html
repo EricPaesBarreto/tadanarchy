@@ -1,167 +1,135 @@
 {% extends "base.html" %}
 {% block title %}Tasks{% endblock %}
-{% block content %}
 
+{% block content %}
 <div class="container py-5">
+
+  <!-- Today's Task / Stats -->
+  <div class="mb-4 p-4 bg-light rounded shadow-sm">
+    <h3 class="fw-semibold">📅 Today's Tasks</h3>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div>
+        <p class="mb-1">Total Tasks: <strong id="totalTasks">0</strong></p>
+        <p class="mb-0">Total Points: <strong id="totalPoints">0</strong> 🪙</p>
+      </div>
+      <button class="btn btn-success" id="uploadFamilyBtn" onclick="location.href='{{ url_for('main.dashboard') }}';">
+      📤 Upload to Dashboard
+    </button>
+    </div>
+  </div>
+
+  <!-- Add New Task Button -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="fw-semibold">📋 Current Tasks for the Day</h3>
+    <h4 class="fw-semibold">All Tasks</h4>
     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newTaskModal">
       ➕ Add New Task
     </button>
   </div>
 
-  <div id="taskContainer"></div>
+  <!-- Task List -->
+  <div id="taskContainer" class="row g-3"></div>
+
 </div>
 
-<!-- Toast -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index:11">
-  <div id="familyToast" class="toast text-bg-success border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body">✅ Task pushed to Family Board!</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+<!-- Modals -->
+<!-- New Task Modal -->
+<div class="modal fade" id="newTaskModal" tabindex="-1" aria-labelledby="newTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newTaskModalLabel">Add New Task</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="taskName" class="form-label">Task Name</label>
+          <input type="text" class="form-control" id="taskName">
+        </div>
+        <div class="mb-3">
+          <label for="taskPoints" class="form-label">Points</label>
+          <input type="number" class="form-control" id="taskPoints" value="0">
+        </div>
+        <div class="mb-3">
+          <label for="taskDeadline" class="form-label">Deadline</label>
+          <input type="datetime-local" class="form-control" id="taskDeadline">
+        </div>
+        <div class="mb-3">
+          <label for="taskSteps" class="form-label">Steps (comma separated)</label>
+          <input type="text" class="form-control" id="taskSteps">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Modals -->
-<!-- (keep all your modal HTML as it is) -->
-
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     let taskCount = 0;
     const taskContainer = document.getElementById("taskContainer");
-    const toast = new bootstrap.Toast(document.getElementById("familyToast"));
+    const totalTasksEl = document.getElementById("totalTasks");
+    const totalPointsEl = document.getElementById("totalPoints");
 
-    const renderTask = (name, points, steps, deadline) => {
-      taskCount++;
-      const card = document.createElement("div");
-      card.className = "card mb-4 shadow-sm task-card";
-      card.dataset.name = name;
-      card.dataset.points = points;
-      card.dataset.deadline = deadline;
+    let totalPoints = 0;
 
-      const stepsHtml = steps.map(
-        (s, i) => `
-          <li class="list-group-item d-flex align-items-center">
-            <input type="checkbox" class="form-check-input me-2 step-checkbox" id="task${taskCount}_step${i}">
-            <label class="form-check-label" for="task${taskCount}_step${i}">${s.trim()}</label>
-          </li>`
-      ).join("");
+    const placeholderTasks = [
+        { name: "Morning Routine", points: 50, steps: ["Brush teeth", "Make bed", "Eat breakfast"], deadline: new Date().setHours(8, 30, 0) },
+        { name: "Homework", points: 100, steps: ["Math exercises", "Read chapter 5", "Write summary"], deadline: new Date().setHours(16, 0, 0) },
+        { name: "Chores", points: 30, steps: ["Take out trash", "Clean dishes", "Vacuum living room"], deadline: new Date().setHours(18, 0, 0) },
+        { name: "Evening Routine", points: 40, steps: ["Shower", "Prepare clothes for tomorrow", "Read a book"], deadline: new Date().setHours(21, 30, 0) }
+    ];
 
-      card.innerHTML = `
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Task #${taskCount}: ${name}</h5>
-            <span class="badge bg-secondary">${points} 🪙</span>
-          </div>
-          <p class="text-muted mt-2 mb-1">Deadline: <strong>${new Date(deadline).toLocaleString()}</strong></p>
-          <ul class="list-group list-group-flush mt-2 steps-list">${stepsHtml}</ul>
-          <div class="d-flex flex-wrap gap-2 mt-3">
-            <button class="btn btn-outline-info btn-sm info-btn">ℹ️ Info</button>
-            <button class="btn btn-outline-success btn-sm push-btn">📤 Push</button>
-            <button class="btn btn-outline-warning btn-sm focus-btn">🎯 Focus</button>
-            <button class="btn btn-outline-dark btn-sm sleep-btn">🌙 Sleep</button>
-          </div>
-        </div>
-      `;
-      taskContainer.appendChild(card);
-
-      card.querySelectorAll(".step-checkbox").forEach(chk =>
-        chk.addEventListener("change", () => checkCompletion(card))
-      );
-      card.querySelector(".info-btn").addEventListener("click", () => showInfo(card, steps));
-      card.querySelector(".push-btn").addEventListener("click", () => toast.show());
-      card.querySelector(".sleep-btn").addEventListener("click", () =>
-        new bootstrap.Modal(document.getElementById("sleepModal")).show()
-      );
-      card.querySelector(".focus-btn").addEventListener("click", () => enterFocusMode(name, 25 * 60));
+    const updateStats = (pointsDelta = 0) => {
+        totalTasksEl.textContent = taskCount;
+        totalPoints += pointsDelta;
+        totalPointsEl.textContent = totalPoints;
     };
 
-    const checkCompletion = (card) => {
-      const allDone = Array.from(card.querySelectorAll(".step-checkbox")).every(c => c.checked);
-      if (allDone) showHooray(card.dataset.name, card.dataset.points);
+    const renderTask = (task) => {
+        taskCount++;
+        updateStats(task.points);
+
+        const card = document.createElement("div");
+        card.className = "card col-12 col-md-6 p-3 shadow-sm";
+        card.innerHTML = `
+            <div class="card-body">
+                <h5 class="card-title">${task.name}</h5>
+                <p class="text-muted">Points: <strong>${task.points}</strong> 🪙 | Deadline: <strong>${new Date(task.deadline).toLocaleString()}</strong></p>
+                <ul class="list-group list-group-flush mb-2">
+                    ${task.steps.map(s => `<li class="list-group-item">${s}</li>`).join('')}
+                </ul>
+                <button class="btn btn-outline-success btn-sm complete-btn">✅ Mark as Complete</button>
+            </div>
+        `;
+        taskContainer.appendChild(card);
+
+        card.querySelector(".complete-btn").addEventListener("click", () => {
+            card.classList.add("bg-success", "text-white");
+            card.querySelector(".complete-btn").disabled = true;
+            // Optionally send a POST request to backend to mark as complete
+        });
     };
 
-    const showHooray = (name, points) => {
-      const overlay = document.createElement("div");
-      overlay.className = "hooray-screen text-center";
-      overlay.innerHTML = `
-        <h1>🎉 Hooray!</h1>
-        <h3 class="mt-3">You have completed <strong>${name}</strong>!</h3>
-        <p class="lead mt-2">You earned <strong>${points}</strong> 🪙</p>
-        <button class="btn btn-light mt-4" id="closeHooray">Continue</button>`;
-      document.body.appendChild(overlay);
-      document.getElementById("closeHooray").addEventListener("click", () => overlay.remove());
-    };
+    // Render placeholder tasks
+    placeholderTasks.forEach(renderTask);
 
-    const showInfo = (card, steps) => {
-      const html = `
-        <p><strong>Task:</strong> ${card.dataset.name}</p>
-        <p><strong>Points:</strong> ${card.dataset.points} 🪙</p>
-        <p><strong>Deadline:</strong> ${new Date(card.dataset.deadline).toLocaleString()}</p>
-        <ul>${steps.map(s => `<li>${s}</li>`).join("")}</ul>`;
-      document.getElementById("infoBody").innerHTML = html;
-      new bootstrap.Modal(document.getElementById("infoModal")).show();
-    };
-
-    const enterFocusMode = (name, durationSec) => {
-      document.body.innerHTML = `
-        <div class="focus-mode d-flex flex-column justify-content-center align-items-center vh-100">
-          <h1>🎯 Focus Mode</h1>
-          <p class="lead mb-3">Stay focused on <strong>${name}</strong></p>
-          <div class="timer" id="focusTimer"></div>
-          <button class="btn btn-light btn-lg mt-4" id="exitFocus">Exit Focus Mode</button>
-        </div>`;
-
-      window.onbeforeunload = () => "You are in Focus Mode!";
-      window.addEventListener("blur", () => alert("🚫 Stay focused!"));
-
-      const timerDisplay = document.getElementById("focusTimer");
-      let remaining = durationSec;
-
-      const updateTimer = () => {
-        const min = Math.floor(remaining / 60);
-        const sec = remaining % 60;
-        timerDisplay.textContent = `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-        if (remaining <= 0) {
-          clearInterval(interval);
-          alert("✅ Time's up! Great job staying focused!");
-        }
-        remaining--;
-      };
-
-      updateTimer();
-      const interval = setInterval(updateTimer, 1000);
-
-      document.getElementById("exitFocus").addEventListener("click", () => {
-        clearInterval(interval);
-        window.onbeforeunload = null;
-        window.location.reload();
-      });
-    };
-
+    // Add new task
     document.getElementById("saveTaskBtn").addEventListener("click", () => {
-      const name = document.getElementById("taskName").value.trim();
-      const points = document.getElementById("taskPoints").value.trim() || 0;
-      const deadline = document.getElementById("taskDeadline").value;
-      const steps = document.getElementById("taskSteps").value.split(",").filter(s => s.trim() !== "");
+        const name = document.getElementById("taskName").value.trim();
+        const points = parseInt(document.getElementById("taskPoints").value) || 0;
+        const deadline = new Date(document.getElementById("taskDeadline").value);
+        const steps = document.getElementById("taskSteps").value.split(",").map(s => s.trim()).filter(s => s);
 
-      if (!name || !deadline || steps.length === 0) {
-        alert("Please fill all fields.");
-        return;
-      }
+        if (!name || !deadline || steps.length === 0) return alert("Please fill all fields.");
 
-      renderTask(name, points, steps, deadline);
-      ["taskName", "taskPoints", "taskDeadline", "taskSteps"].forEach(id =>
-        document.getElementById(id).value = ""
-      );
-      bootstrap.Modal.getInstance(document.getElementById("newTaskModal")).hide();
+        renderTask({name, points, steps, deadline});
+        ["taskName","taskPoints","taskDeadline","taskSteps"].forEach(id => document.getElementById(id).value = "");
+        bootstrap.Modal.getInstance(document.getElementById("newTaskModal")).hide();
     });
-
-    // Demo task
-    renderTask("Morning Routine", 50, ["Brush teeth", "Make bed", "Eat breakfast"], new Date().setHours(8, 30, 0));
-  });
+});
 </script>
 
 {% endblock %}
-

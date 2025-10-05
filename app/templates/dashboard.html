@@ -3,58 +3,130 @@
 {% block content %}
 
 <div class="container py-5">
-  <div id="topUser" class="card text-center mb-4 shadow-sm">
-    <div class="card-body">
-      <h5 class="card-title">Loading top user...</h5>
-      <p class="card-text text-muted">Please wait while we fetch user data.</p>
-    </div>
+
+  <!-- User Greeting -->
+  <div class="mb-4 text-center">
+    <h2>Welcome, {{ user.first_name }}! 👋</h2>
+    <p class="text-muted">Here's a quick look at your activity today.</p>
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-header bg-light">
-      <h5 class="mb-0">All Registered Users</h5>
+  <!-- Stats Cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Total Points</h5>
+        <span class="fs-3 fw-bold">{{ user.points or 0 }} 🪙</span>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table id="userTable" class="table table-hover align-middle">
-          <thead class="table-primary">
-            <tr>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Points</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Tasks Completed</h5>
+        <span class="fs-3 fw-bold">{{ user.completed_tasks or 0 }}</span>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Family Members</h5>
+        <span class="fs-3 fw-bold">{{ user.family_size or 1 }}</span>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Avatar</h5>
+        <img src="{{ url_for('static', filename='avatars/pfp' ~ user.avatar_id ~ '.png') }}" 
+             class="rounded-circle" width="50" height="50">
       </div>
     </div>
   </div>
+
+  <!-- Family Tasks Section -->
+  <div class="container py-5">
+    <h3 class="fw-semibold mb-3">👪 Family Tasks</h3>
+
+    <div id="familyTaskContainer" class="row g-3">
+      <!-- Placeholder tasks -->
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Wash the dishes</h5>
+            <p class="card-text">Uploaded by: Mom</p>
+            <p class="card-text text-muted">Complete this task to earn 10 🪙</p>
+            <button class="btn btn-primary btn-sm claim-btn">Claim Task</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Take out the trash</h5>
+            <p class="card-text">Uploaded by: Dad</p>
+            <p class="card-text text-muted">Complete this task to earn 5 🪙</p>
+            <button class="btn btn-primary btn-sm claim-btn">Claim Task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".claim-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const card = e.target.closest(".card");
+          const taskName = card.querySelector(".card-title").textContent;
+          alert(`You have claimed the task: ${taskName}`);
+          // TODO: Add fetch/AJAX call to mark task as claimed in the DB
+        });
+      });
+    });
+  </script>
+
+
+  <!-- Placeholder for tasks or recent activity -->
+  <div class="mb-5">
+    <h4>Recent Tasks</h4>
+      <ul class="list-group">
+        {% for task in user.tasks or [{'id': 0,'name': 'Placeholder Task 1', 'points': 10}, {'id':0,'name': 'Placeholder Task 2', 'points': 5}] %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ task.name }}
+            <div>
+              <span class="badge bg-primary rounded-pill me-2">{{ task.points }} 🪙</span>
+              {% if not task.completed %}
+              <button class="btn btn-success btn-sm mark-complete-btn" data-task-id="{{ task.id }}">
+                ✅ Mark Complete
+              </button>
+              {% else %}
+              <span class="text-success fw-bold">Completed</span>
+              {% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+  </div>
+
+  <!-- Placeholder charts or progress bars can go here -->
+
 </div>
 
 <script>
-const users = [
-  { name: "Alice", status: "child", points: 240 },
-  { name: "Bob", status: "adult", points: 180 },
-  { name: "Liam", status: "child", points: 290 },
-  { name: "Emma", status: "child", points: 150 },
-];
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".mark-complete-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const taskId = btn.dataset.taskId;
+      const res = await fetch(`/task/${taskId}/complete`, { method: 'POST' });
+      const data = await res.json();
 
-users.sort((a, b) => b.points - a.points);
-const topUser = users[0];
-
-document.getElementById("topUser").innerHTML = `
-  <div class="card-body">
-    <h3 class="card-title">🏆 ${topUser.name}</h3>
-    <p>Status: <span>${topUser.status}</span></p>
-    <p><strong>${topUser.points}</strong> points</p>
-  </div>`;
-
-const tbody = document.querySelector("#userTable tbody");
-users.forEach(user => {
-  const row = document.createElement("tr");
-  row.innerHTML = `<td>${user.name}</td><td>${user.status}</td><td>${user.points}</td>`;
-  tbody.appendChild(row);
+      if (data.status === 'success') {
+        btn.replaceWith('<span class="text-success fw-bold">Completed</span>');
+        document.querySelector("#pointsBadge").textContent = data.new_points + " 🪙";
+      } else if (data.status === 'already completed') {
+        btn.replaceWith('<span class="text-success fw-bold">Completed</span>');
+      }
+    });
+  });
 });
 </script>
+
 
 {% endblock %}
