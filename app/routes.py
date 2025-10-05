@@ -49,7 +49,7 @@ def register():
         # create new user object
         new_user = User(first_name=first_name, 
                         last_name=last_name, 
-                        email=email, 
+                        email=email.lower(), 
                         date_of_birth=dob, 
                         avatar_id=random.randint(0, 4)) # for now, only 4 avatars :(
         new_user.set_password(password)
@@ -64,6 +64,7 @@ def register():
         try:
             db.session.add(new_user)
             db.session.commit()
+            print("DEBUG: Added user:", new_user.email, new_user.password_hash) # DEBUG DEBUG DEBUG!!!!!!!!
             if not new_user.is_adult(): # check age --> hopefully this version works
                 flash("Registration successful. Please log in and link with a parent account.")
                 return redirect(url_for('auth.login'))
@@ -85,7 +86,9 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
 
+        print("DEBUG: login user:", user)
         if user and user.check_password(password):
+            print("DEBUG: stored hash:", user.password_hash)
             login_user(user)
             # redirect under-18 to link page
             if not user.is_adult():
@@ -100,14 +103,14 @@ def login():
 
 # LOGOUT
 @auth.route('/logout')
-@login_required
+# @login_required                                   # CHANGE FOR PRODDDDDD
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
 # UNDER 18 LOGIN 
 @main.route('/link_parent', methods=['GET', 'POST'])
-@login_required
+# @login_required                                   # CHANGE FOR PRODDDDDD
 def link_parent():
     if current_user.is_adult():
         return redirect(url_for('main.dashboard'))
@@ -138,6 +141,6 @@ def link_parent():
 
 # DASHBOARD
 @main.route('/dashboard')
-@login_required
+#@login_required                                   # CHANGE FOR PRODDDDDD
 def dashboard():
-    return render_template('main_page.html', user=current_user)
+    return render_template('dashboard.html', user=current_user)
