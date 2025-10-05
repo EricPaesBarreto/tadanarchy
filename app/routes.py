@@ -14,10 +14,11 @@ main = Blueprint('main', __name__)
 
 ### PAGES
 
-# MAIN
+# MAIN PAGE
 @main.route('/')
-def home():
-    return render_template('landing_page.html')
+def main_page():  # <-- renamed from `home` to `main_page`
+    return render_template('main_page.html')
+
 
 
 ### ACCOUNTS
@@ -157,3 +158,7 @@ def family_management():
 @login_required
 def tasks():
     return render_template('tasks.html', user=current_user)
+
+@main.route('/landing_page')
+def landing_page():
+    return render_template('landing_page.html')

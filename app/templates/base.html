@@ -16,8 +16,8 @@
   <!-- ===== NAVBAR ===== -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container-fluid px-4">
-      <!-- Logo -->
-      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.dashboard') }}">
+      <!-- Logo linking to main_page -->
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.main_page') }}">
         <img src="{{ url_for('static', filename='pics/logo.jpg') }}"
              alt="Livelihood Logo"
              class="rounded-circle me-2"
@@ -25,15 +25,15 @@
         Livelihood
       </a>
 
-      {% if user.is_authenticated %}
-        <!-- Navbar links for logged-in users -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          {% if user.is_authenticated %}
+            <!-- Navbar links for logged-in users -->
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
             </li>
@@ -51,15 +51,24 @@
                 <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">Logout</a></li>
               </ul>
             </li>
-          </ul>
-        </div>
-      {% endif %}
+          {% else %}
+            <!-- Sign In / Log In for anonymous users -->
+            <li class="nav-item">
+              <a class="nav-link btn btn-outline-light me-2" href="{{ url_for('main.landing_page') }}">Sign In</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link btn btn-light" href="{{ url_for('main.landing_page') }}">Log In</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
   </nav>
 
   <!-- ===== MAIN CONTENT ===== -->
   <main class="flex-fill d-flex justify-content-center align-items-center">
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
   </main>
 
   <!-- ===== FOOTER ===== -->
