@@ -18,7 +18,7 @@ py -m pip install -r requirements.txt
 -Run the app:
 In the terminal - 
 ```bash
-"flask --app run run"
+python -m flask run
 ```
 and open the link
 
