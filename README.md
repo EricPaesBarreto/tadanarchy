@@ -39,6 +39,3 @@ and open the link
 - **Eric** - https://www.linkedin.com/in/eric-paes-barreto/
 - **Vladyslav** - https://www.linkedin.com/in/vladyslav-kondrat-a3a204312/
 - **Ostap** - https://www.linkedin.com/in/ostap-siedin-4555061a5/
-
-Ideas for next project:
-* A psychological horrro game where you are given a bunch of images with a question like "does this image contain the cat?" and then asks you to point it out. gradually more disturbing images are introduces into the image stream. like a CAPTCHA horror.
